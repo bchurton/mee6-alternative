@@ -1,11 +1,20 @@
-// calculate level from xp
-// examples:
-// 1554621 xp = level 93
-// 2730810 xp = level 113
-// 1986665 xp = level 101
-// 2722540 xp = level 113
-// 1330029 xp = level 88
+function nextLevel(xp, lvl) {
+    let res = 0; 
+    for (let i = 0; i < lvl; i++) res += (5 * Math.pow(i, 2) + 50 * i + 100)
+    console.log(`Res: ${res} | XP: ${xp} | Level: ${lvl} | Next: ${res - xp} | Sign: ${Math.sign(res - xp)}`)
+    console.log(`Level ${lvl} needs ${res - xp} more xp`)
+    return res - xp
+  } 
 
-module.exports.neededXP = function (xp, lvl) {
-    return Math.round(5 * (lvl ^ 2) + (50 * lvl) + 100 - xp);
+function getLevel(xp) {
+    for (let lvl = 0; lvl < 100; lvl++) {
+        const next = nextLevel(xp, lvl);
+        if (Math.sign(next) >= 0) {
+            return lvl - 1
+        }
+    }
+    return 0
 }
+
+module.exports.getLevel = getLevel;
+module.exports.nextLevel = nextLevel;

@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 const Redis = require('ioredis');
-const { neededXP } = require("./xpToLevel")
+const { getLevel, nextLevel } = require("./xpToLevel")
 const canvacord = require("canvacord");
 const { GuildMember } = require("discord.js")
 
@@ -39,10 +39,10 @@ class LevelHandler {
 
         const levelDB = await this.mongo.findOne({ id })
         const currentXP = levelDB?.xp?.levelXp || 0
-        const currentLevel = levelDB.level || 0
-        const xpNeeded = neededXP(currentXP, currentLevel + 1)
+        const currentLevel = getLevel(currentXP)
+        const xpNeeded = nextLevel(currentLevel)
 
-        await this.redis.set(`level_${id}`, JSON.stringify({ level: currentLevel, xp: currentXP, xpNeeded }))
+        await this.redis.set(`level_${id}`, JSON.stringify({ level: currentLevel, xp: currentXP, xpNeeded }), "EX", 60 * 60 * 24) // 24 hours
         return { level: currentLevel, xp: currentXP, xpNeeded }
     }
 
