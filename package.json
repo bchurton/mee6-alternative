@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "@aero/sanitizer": "^1.2.0",
+    "aws-sdk": "^2.1293.0",
+    "axios": "^0.24.0",
+    "bloxy.js": "^1.1.7",
+    "buffer-image-size": "^0.6.4",
+    "canvacord": "^5.4.8",
+    "canvas": "^2.10.2",
+    "discord-api-types": "^0.24.0",
+    "discord-canvas": "^1.5.2",
+    "discord-html-transcripts": "^2.6.0",
+    "discord-modals": "^1.2.1",
+    "discord.js": "^13.13.1",
+    "dotenv": "^10.0.0",
+    "dotenv-safe": "^8.2.0",
+    "duration-parser": "^1.0.2",
+    "ioredis": "^5.3.1",
+    "moment-timezone": "^0.5.37",
+    "mongo": "^0.1.0",
+    "node-cache": "^5.1.2",
+    "node-cron": "^3.0.2",
+    "node-fetch-commonjs": "^3.1.1",
+    "openai": "^3.1.0",
+    "parse-duration": "^1.0.2",
+    "save": "^2.4.0",
+    "undici": "^5.10.0",
+    "webhook-discord": "^3.7.8"
+  }
+}
