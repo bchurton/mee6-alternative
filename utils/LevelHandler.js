@@ -38,7 +38,7 @@ class LevelHandler {
         if (cached) return JSON.parse(cached)
 
         const levelDB = await this.mongo.findOne({ id })
-        const currentXP = levelDB?.xp?.totalXp || 0
+        const currentXP = levelDB?.xp?.levelXp || 0
         const currentLevel = levelDB.level || 0
         const xpNeeded = neededXP(currentXP, currentLevel + 1)
 
@@ -47,14 +47,13 @@ class LevelHandler {
     }
 
     async addXp(id, xp) {
-        // up their totalXp in the database
         const levelDB = await this.mongo.findOne({ id })
-        const newTotalXp = levelDB?.xp?.totalXp ? levelDB.xp.totalXp + xp : xp
+        const newLevelXp = levelDB?.xp?.levelXp ? levelDB.xp.levelXp + xp : xp
 
         await this.redis.del(`level_${id}`)
-        await this.mongo.updateOne({ id }, { $set: { xp: { totalXp: newTotalXp } } }, { upsert: true })
+        await this.mongo.updateOne({ id }, { $set: { xp: { levelXp: newLevelXp } } }, { upsert: true })
 
-        return newTotalXp
+        return newLevelXp
     }
 
     async getXPToNextLevel(id) {
@@ -64,7 +63,7 @@ class LevelHandler {
 
     async getRank(id) {
         const { level } = await this.getLevel(id)
-        const rank = await this.mongo.countDocuments({ "xp.totalXp": { $gt: levelToXp(level) } })
+        const rank = await this.mongo.countDocuments({ "xp.levelXp": { $gt: levelToXp(level) } })
         return rank
     }
 
@@ -72,7 +71,7 @@ class LevelHandler {
         const cached = await this.redis.get("leaderboard")
         if (cached) return JSON.parse(cached)
 
-        const leaderboard = await this.mongo.find({}).sort({ "xp.totalXp": -1 }).toArray()
+        const leaderboard = await this.mongo.find({}).sort({ "xp.levelXp": -1 }).toArray()
 
         await this.redis.set("leaderboard", JSON.stringify(leaderboard), 'EX', 300) // 5 minutes
 
