@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 const Redis = require('ioredis');
-const { getLevel, nextLevel } = require("./xpToLevel")
+const { getLevelFromXp, getLevelXp } = require("./xpToLevel")
 const canvacord = require("canvacord");
 const { GuildMember } = require("discord.js")
 
@@ -38,12 +38,12 @@ class LevelHandler {
         if (cached) return JSON.parse(cached)
 
         const levelDB = await this.mongo.findOne({ id })
-        const currentXP = levelDB?.xp?.levelXp || 0
-        const currentLevel = getLevel(currentXP)
-        const xpNeeded = nextLevel(currentLevel)
+        const totalXp = levelDB?.xp?.userXp || 0
+        const currentLevel = getLevelFromXp(totalXp)
+        const neededXp = getLevelXp(currentLevel + 1)
 
-        await this.redis.set(`level_${id}`, JSON.stringify({ level: currentLevel, xp: currentXP, xpNeeded }), "EX", 60 * 60 * 24) // 24 hours
-        return { level: currentLevel, xp: currentXP, xpNeeded }
+        await this.redis.set(`level_${id}`, JSON.stringify({ level: currentLevel, xp: totalXp, neededXp }), "EX", 60 * 60 * 24) // 24 hours
+        return { level: currentLevel, xp: totalXp, neededXp }
     }
 
     async addXp(id, xp) {
@@ -106,12 +106,13 @@ class LevelHandler {
     async generateRankCard(member) {
         const status = typeof member === GuildMember ? member.presence.status : "online"
 
-        const { level, xp, xpNeeded } = await this.getLevel(member.id)
+        const { level, xp, neededXp } = await this.getLevel(member.id)
 
         const rank = new canvacord.Rank()
             .setAvatar(member.displayAvatarURL({ format: "png", size: 1024 }))
             .setCurrentXP(xp)
-            .setRequiredXP(xpNeeded)
+            .setRequiredXP(neededXp)
+            .setLevel(level)
             .setStatus(status)
             .setProgressBar("#FFFFFF", "COLOR")
             .setUsername(member?.user ? member.user.username : member.username)
